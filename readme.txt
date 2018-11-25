@@ -8,7 +8,14 @@ Steps to set up the python virtual env for this project
 3. All the project dependencies should be resolved if above steps are executed correctly.
 4. Add HOME=C:\Users\Kavya and EMBEDDINGS_ROOT=C:\Users\Kavya\.embeddings environment variables as local and system.
 
-# project steps to be followed
+#setup
+ Run tweetCollect to collect the tweets.
+ Run tweet Edit to collect 10000 tweets.
+ Comment remaining code and run preprocess for preprocessing the data.
+
+
+
+# project steps
 
 # 1. Prepare data set
 #   - read tweets from file
