@@ -4,23 +4,31 @@ from nltk.tokenize import TweetTokenizer
 import json as js
 import re
 
+ID_TEXT_DELIMITER = " <:sep:> "
 
-# take 10000 tweets from the collected tweets
-
-# fp = open("../../../../resources/tweets1.json", "r")
-#
-# c = 0
-# fp1 = open("../../../../resources/tweets_10k.txt", "w")
-# for tweet in fp.readlines():
-#     if c <= 10000:
-#         fp1.write(tweet)
-#     else:
-#         fp1.close()
-#     c = c + 1
-# fp.close()
+"""
+    Take 10000 tweets from the collected tweets
+"""
 
 
-# #preprocess the data
+def write_n_tweets(n, raw_tweets_file):
+    raw_tweets_ = open(raw_tweets_file, "r")
+    c = 0
+    n_tweets_ = open("../../../../resources/n-raw-tweets.txt", "w")
+    for tw in raw_tweets_.readlines():
+        if c <= n:
+            n_tweets_.write(tw)
+        else:
+            n_tweets_.close()
+        c = c + 1
+    raw_tweets_.close()
+
+
+"""
+pre process the data
+"""
+
+
 def pre_process(text_string):
     """
     Accepts a text string and replaces:
@@ -41,35 +49,65 @@ def pre_process(text_string):
     return parsed_text
 
 
-fp2 = open("../../../../resources/tweets_10k_id_text.txt", "w")
-tweets_file = open("../../../../resources/tweets_10k.txt", 'r')
-for twt in tweets_file.readlines():
-    if len(twt.strip()) > 0:
-        tweet = js.loads(twt.strip().replace('\n', " ").replace('\r', ''))
-        try:
-            fp2.write(str(tweet["id"])+ " text: "+ pre_process(tweet["text"]))
-            fp2.write("\n")
-        except KeyError as e:
-            print("Bad Tweet!! " + twt)
-fp2.close()
+"""
+    Tokenize a tweet
+"""
 
 
-# #tokenize the data
+def tokenize(tweet_text):
+    stopwords = None
+    try:
+        stopwords = nltk.corpus.stopwords.words("english")
+        other_exclusions = ["#ff", "ff", "rt"]
+        stopwords.extend(other_exclusions)
+    except LookupError as lue:
+        nltk.download('stopwords')
 
-# def tokenize(txt):
-#     stopwords = nltk.corpus.stopwords.words("english")
-#     other_exclusions = ["#ff", "ff", "rt"]
-#     stopwords.extend(other_exclusions)
-#     tr = TweetTokenizer()
-#     words = tr.tokenize(txt)
-#     ref_words = [word for word in words if word not in stopwords]
-#     return ref_words
-#
-#
-# fp2 = open("../../../../resources/tweets_10k_id_text.txt", "r")
-# final_tweet = dict()
-# for line in fp2.readlines():
-#     items = line.split(" text:")
-#     final_tweet[items[0]] = tokenize(items[1])
-# print(final_tweet)
+    tr = TweetTokenizer()
+    words = tr.tokenize(tweet_text)
+    tweet_words = [word for word in words if word not in stopwords]
+    return tweet_words
 
+
+"""
+    Extract Id, text from raw tweets
+"""
+
+
+def extract_and_write_id_text_to_file(n_tweets_file):
+    id_text_ = open("../../../../resources/n-tweets-id_text.txt", "w", encoding='utf-8')
+    n_tweets_ = open(n_tweets_file, 'r')
+    for twt in n_tweets_.readlines():
+        if len(twt.strip()) > 0:
+            tweet = js.loads(twt.strip().replace('\n', " ").replace('\r', ''))
+            try:
+                id_text_.write(str(tweet["id"]) + ID_TEXT_DELIMITER + pre_process(tweet["text"]))
+                id_text_.write("\n")
+            except KeyError as e:
+                print("Bad Tweet!! " + twt)
+    id_text_.close()
+    n_tweets_.close()
+
+
+"""
+    Tokenize tweets using nltk
+"""
+
+
+def tokenize_tweets(id_text_file):
+    id_text_ = open(id_text_file, "r", encoding='utf-8')
+    id_tokens_ = open("../../../../resources/n-tweets-id_tokens.txt", 'w', encoding='utf-8')
+    for txt in id_text_.readlines():
+        parts = txt.split(ID_TEXT_DELIMITER)
+        if parts is not None and len(parts):
+            tokens = tokenize(parts[1])
+            print(parts[0], ID_TEXT_DELIMITER, tokens, file=id_tokens_)
+
+
+"""
+    Main Method
+"""
+if __name__ == '__main__':
+    write_n_tweets(100, "../../../../resources/raw-tweets.json")
+    extract_and_write_id_text_to_file("../../../../resources/n-raw-tweets.txt")
+    tokenize_tweets("../../../../resources/n-tweets-id_text.txt")

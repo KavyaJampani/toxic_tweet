@@ -3,7 +3,8 @@ Steps to set up the python virtual env for this project
 1. create a conda based virtual env using pycharm or follow below steps
     1. conda create -n toxic-tweets python=3.6
     2. source activate toxic-tweets
-    3. conda/pip install tensorflow keras pandas embeddings
+    3. conda install tensorflow keras pandas
+    4. pip install embeddings tweepy
 2. If above steps are followed, select the python in the toxic-tweets as your interpreter
 3. All the project dependencies should be resolved if above steps are executed correctly.
 4. Add HOME=C:\Users\Kavya and EMBEDDINGS_ROOT=C:\Users\Kavya\.embeddings environment variables as local and system.
