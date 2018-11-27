@@ -25,7 +25,7 @@ class StdOutListener(StreamListener):
 
     def on_data(self, data):
         all_data = json.loads(data)
-        with open("../../../../resources/raw-tweets.json", 'a') as tf:
+        with open("../../../../resources/tweets2.json", 'a') as tf:
             tf.write('\n')
             # Write the json data directly to the file
             json.dump(all_data, tf)
@@ -43,4 +43,5 @@ if __name__ == '__main__':
     stream = Stream(auth, l)
 
     # This line filter Twitter Streams to capture data
-    stream.filter(languages=["en"], track=keywords())
+    stream.filter(languages=["en"],track = ["great","thanks","people","think","well","health"])
+

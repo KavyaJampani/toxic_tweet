@@ -14,8 +14,6 @@ Steps to set up the python virtual env for this project
  Run tweet Edit to collect 10000 tweets.
  Comment remaining code and run preprocess for preprocessing the data.
 
-
-
 # project steps
 
 # 1. Prepare data set
