@@ -54,6 +54,8 @@ def write_n_ntweets(n, raw_tweets_file):
                      print("Bad Tweet!! " + twt)
     id_text_.close()
     raw_tweets_.close()
+
+
 """
 pre process the data
 """
@@ -135,8 +137,9 @@ def tokenize_tweets(id_text_file):
     for txt in id_text_.readlines():
         parts = txt.split(ID_TEXT_DELIMITER)
         if parts is not None and len(parts):
-            tokens = tokenize(parts[1])
-            print(parts[0], ID_TEXT_DELIMITER, tokens, file=id_tokens_)
+            tokens = tokenize(parts[2])
+            print(parts[0], ID_TEXT_DELIMITER, parts[1], ID_TEXT_DELIMITER, tokens, file=id_tokens_)
+
 
 def merge_files():
     filenames = ['../../../../resources/n-ntweets-id_text.txt','../../../../resources/n-tweets-id_text.txt']
@@ -145,6 +148,8 @@ def merge_files():
             with open(fname) as infile:
                 for line in infile:
                     outfile.write(line)
+
+
 """
     Main Method
 """
