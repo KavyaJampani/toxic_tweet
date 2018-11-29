@@ -8,6 +8,8 @@ from keras import backend as K
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix, precision_recall_fscore_support
 
+from collections import OrderedDict
+
 import numpy as np
 
 seed = 7
@@ -24,8 +26,8 @@ glove = GloveEmbedding(name="twitter", d_emb=50,  show_progress=True)
 """
     1. Index tweets and it labels for error analysis
 """
-labels = dict()
-tweets = dict()
+labels = OrderedDict()
+tweets = OrderedDict()
 fp = open("../../../../resources/n-tweets-id_tokens.txt", 'r')
 idx = 0
 for sample in fp.readlines():
@@ -82,7 +84,9 @@ for idx, tweet in tweets.items():
             embd = np.asarray(embd)
             embd = embd.reshape([50, 1])
         sample = sample + embd
-    samples_list.append(sample.tolist())
+    x = [[idx]]
+    x.extend(sample.tolist())
+    samples_list.append(x)
     labels_list.append(labels[idx])
 
 data_set = [np.asarray(samples_list).squeeze(), np.asarray(labels_list)]
@@ -95,14 +99,14 @@ print("No of samples X 1:", data_set[1].shape)
 """
 X_train, X_test, y_train, y_test = train_test_split(data_set[0], data_set[1], test_size=0.30, random_state=seed)
 
-print("Train: No of samples X No of features:", X_train.shape)
+print("Train: No of samples X No of features:", X_train[0:, 1:X_train.shape[1]].shape)
 print("Train: No of samples X 1:", y_train.shape)
 
-print("Test: No of samples X No of features:", X_test.shape)
+print("Test: No of samples X No of features:", X_test[0:, 1:X_test.shape[1]].shape)
 print("Test: No of samples X 1:", y_test.shape)
 
 BATCH_SIZE = 25
-EPOCHS = 200
+EPOCHS = 1
 
 # configure the model
 model = Sequential()
@@ -117,7 +121,7 @@ model.add(Dense(1, activation='sigmoid'))
 model.compile(loss='binary_crossentropy', optimizer='adadelta', metrics=['accuracy'])
 # Train model
 model.summary()
-model.fit(X_train, y_train,
+model.fit(X_train[0:, 1:X_train.shape[1]], y_train,
           batch_size=BATCH_SIZE,
           epochs=EPOCHS,
           verbose=1)
@@ -125,7 +129,7 @@ model.fit(X_train, y_train,
 """
     Neural Net: Test
 """
-y_pred = model.predict_classes(X_test)
+y_pred = model.predict_classes(X_test[0:, 1:X_test.shape[1]])
 
 """
     Neural Net: Stats
@@ -140,3 +144,6 @@ print("Toxic Class: F1-Measure", f1measure)
 """
     Neural Net: Error Analysis
 """
+for idx in range(y_pred.shape[0]):
+    if y_pred[idx] != y_test[idx]:
+        print("Ground Truth: ", y_test[idx], " prediction: ", y_pred[idx], " tweet: ", tweets[X_test[idx, 0]])
