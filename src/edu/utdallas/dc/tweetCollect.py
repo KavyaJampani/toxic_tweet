@@ -26,18 +26,54 @@ This is a basic listener that just prints received tweets to stdout.
 """
 
 
-class StdOutListener(StreamListener):
+# class Stream2Screen(StreamListener):
+#     def on_status(self, status):
+# 		if hasattr(status, 'retweeted_status'):
+#             try:
+#                 tweet = status.retweeted_status.extended_tweet["full_text"]
+#             except:
+#                 tweet = status.retweeted_status.text
+# 		else:
+#             try:
+#                 tweet = status.extended_tweet["full_text"]
+#             except AttributeError:
+#                 tweet = status.text
+#     print(tweet)
 
-    def on_data(self, data):
-        all_data = json.loads(data)
-        with open(tweets_file, 'a') as tf:
+class StdOutListener(StreamListener):
+    def on_status(self, status):
+        with open(tweets_file,'a',encoding="utf-8") as tf:
             tf.write('\n')
-            # Write the json data directly to the file
-            json.dump(all_data, tf)
+            if hasattr(status, 'retweeted_status'):
+                try:
+                    tweet = status.retweeted_status.extended_tweet['full_text']
+                    tf.write(tweet.strip().replace('\n', " ").replace('\r', ''))
+                except:
+                    tweet = status.retweeted_status.text
+                    tf.write(tweet.strip().replace('\n', " ").replace('\r', ''))
+            else:
+                try:
+                    tweet = status.extended_tweet["full_text"]
+                    tf.write(tweet.strip().replace('\n', " ").replace('\r', ''))
+                except:
+                    tweet = status.text
+                    tf.write(tweet.strip().replace('\n', " ").replace('\r', ''))
         return True
 
     def on_error(self, status):
         print(status)
+
+
+    # def on_data(self, data):
+    #     all_data = json.loads(data)
+    #     with open(tweets_file, 'a') as tf:
+    #         tf.write('\n')
+    #         # Write the json data directly to the file
+    #         json.dump(all_data, tf)
+    #     return True
+    #
+    # def on_error(self, status):
+    #     print(status)
 
 
 if __name__ == '__main__':
@@ -49,6 +85,6 @@ if __name__ == '__main__':
 
     # This line filter Twitter Streams to capture data
     # change file name (keywords and output file) to track the respective
-    tweets_file = '../../../../resources/non-toxic-tweets.json'
-    stream.filter(languages=["en"], track=keywords(non_toxic_key_words_file))
+    tweets_file = '../../../../resources/toxic-tweets.txt'
+    stream.filter(languages=["en"], track=keywords(toxic_key_words_file))
 

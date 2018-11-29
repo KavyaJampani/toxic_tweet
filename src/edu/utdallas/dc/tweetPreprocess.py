@@ -8,60 +8,8 @@ from nltk.stem import SnowballStemmer
 ID_TEXT_DELIMITER = " <:sep:> "
 
 """
-    Take 10000 tweets from the collected tweets
-"""
-
-def write_n_tweets(n, raw_tweets_file):
-    raw_tweets_ = open(raw_tweets_file, "r")
-    c = 0
-    n_tweets_ = open("../../../../resources/n-raw-tweets.txt", "w")
-    for tw in raw_tweets_.readlines():
-        if c <= n:
-            n_tweets_.write(tw)
-        else:
-            n_tweets_.close()
-        c = c + 1
-    raw_tweets_.close()
-
-
-def keywords():
-    fp = open("../../../../resources/toxic-keywords.txt", "r")
-    words = [w.strip() for w in fp.readlines() if w.strip() is not None and len(w.strip()) > 0]
-    return words
-
-
-def write_n_ntweets(n, raw_tweets_file):
-    raw_tweets_ = open(raw_tweets_file, "r")
-    c = 0
-    id_text_ = open("../../../../resources/n-ntweets-id_text.txt", "w", encoding='utf-8')
-    words = keywords()
-    for twt in raw_tweets_.readlines():
-         if len(twt.strip()) > 0:
-                 tweet = js.loads(twt.strip().replace('\n', " ").replace('\r', ''))
-                 try:
-                     toxic = 0
-                     tweet_words = tweet["text"].split("\\s")
-                     for k in tweet_words:
-                         for x in words:
-                             if k == x:
-                                 toxic = 1
-                     if toxic == 0:
-                        id_text_.write(str(tweet["id"]) + ID_TEXT_DELIMITER + "NO" + ID_TEXT_DELIMITER + pre_process(tweet["text"]))
-                        id_text_.write("\n")
-                        c = c+1
-                     if c>=n:
-                         break
-                 except KeyError as e:
-                     print("Bad Tweet!! " + twt)
-    id_text_.close()
-    raw_tweets_.close()
-
-
-"""
 pre process the data
 """
-
-
 def pre_process(text):
     #remove special characters
     text = re.compile(r'[^a-z\d ]',re.IGNORECASE).sub('',text)
@@ -112,20 +60,41 @@ def tokenize(tweet_text):
 """
 
 
-def extract_and_write_id_text_to_file(n_tweets_file):
-    id_text_ = open("../../../../resources/n-tweets-id_text.txt", "w", encoding='utf-8')
-    n_tweets_ = open(n_tweets_file, 'r')
+def write_text_to_file(n_tweets_file,n):
+    id_text_ = open("../../../../resources/non-toxic-preprocess.txt", "w", encoding='utf-8')
+    n_tweets_ = open(n_tweets_file, 'r',encoding='utf-8')
+    c = 0
     for twt in n_tweets_.readlines():
         if len(twt.strip()) > 0:
-            tweet = js.loads(twt.strip().replace('\n', " ").replace('\r', ''))
+            if(c > n):
+                break
+            #tweet = js.loads(twt.strip().replace('\n', " ").replace('\r', ''))
             try:
-                id_text_.write(str(tweet["id"]) + ID_TEXT_DELIMITER + "YES" + ID_TEXT_DELIMITER + pre_process(tweet["text"]) )
+                id_text_.write("NO" + ID_TEXT_DELIMITER + pre_process(twt) )
                 id_text_.write("\n")
+                c = c+1
             except KeyError as e:
                 print("Bad Tweet!! " + twt)
     id_text_.close()
     n_tweets_.close()
 
+
+def write_toxic_to_file(n_tweets_file,n):
+    id_text_ = open("../../../../resources/toxic-preprocess.txt", "w", encoding='utf-8')
+    n_tweets_ = open(n_tweets_file, 'r',encoding='utf-8')
+    c = 0
+    for twt in n_tweets_.readlines():
+        if len(twt.strip()) > 0:
+            if(c > n):
+                break
+            #tweet = js.loads(twt.strip().replace('\n', " ").replace('\r', ''))
+            try:
+                id_text_.write("YES" + ID_TEXT_DELIMITER + pre_process(twt) )
+                id_text_.write("\n")
+            except KeyError as e:
+                print("Bad Tweet!! " + twt)
+    id_text_.close()
+    n_tweets_.close()
 
 """
     Tokenize tweets using nltk
@@ -148,7 +117,7 @@ def tokenize_tweets(id_text_file):
 
 
 def merge_files():
-    filenames = ['../../../../resources/n-ntweets-id_text.txt','../../../../resources/n-tweets-id_text.txt']
+    filenames = ['../../../../resources/toxic-preprocess.txt', '../../../../resources/non-toxic-preprocess.txt']
     with open('../../../../resources/final_tweets-id_text.txt', 'w') as outfile:
         for fname in filenames:
             with open(fname) as infile:
@@ -160,8 +129,7 @@ def merge_files():
     Main Method
 """
 if __name__ == '__main__':
-    write_n_tweets(10000, "../../../../resources/tweets1.json")
-    write_n_ntweets(10000,"../../../../resources/tweets2.json")
-    extract_and_write_id_text_to_file("../../../../resources/n-raw-tweets.txt")
+    write_text_to_file("../../../../resources/non-toxic-tweets.txt",10000)
+    write_toxic_to_file("../../../../resources/toxic-tweets.txt",10000)
     merge_files()
     tokenize_tweets("../../../../resources/final_tweets-id_text.txt")
