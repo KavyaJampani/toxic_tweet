@@ -14,6 +14,10 @@ tweets_file = None
 toxic_key_words_file = "../../../../resources/toxic-keywords.txt"
 non_toxic_key_words_file = "../../../../resources/non-toxic-keywords.txt"
 
+"""
+ Returns toxic keywords
+"""
+
 
 def keywords(key_words_file):
     fp = open(key_words_file, "r")
@@ -25,20 +29,6 @@ def keywords(key_words_file):
 This is a basic listener that just prints received tweets to stdout.
 """
 
-
-# class Stream2Screen(StreamListener):
-#     def on_status(self, status):
-# 		if hasattr(status, 'retweeted_status'):
-#             try:
-#                 tweet = status.retweeted_status.extended_tweet["full_text"]
-#             except:
-#                 tweet = status.retweeted_status.text
-# 		else:
-#             try:
-#                 tweet = status.extended_tweet["full_text"]
-#             except AttributeError:
-#                 tweet = status.text
-#     print(tweet)
 
 class StdOutListener(StreamListener):
     def on_status(self, status):
@@ -62,18 +52,6 @@ class StdOutListener(StreamListener):
 
     def on_error(self, status):
         print(status)
-
-
-    # def on_data(self, data):
-    #     all_data = json.loads(data)
-    #     with open(tweets_file, 'a') as tf:
-    #         tf.write('\n')
-    #         # Write the json data directly to the file
-    #         json.dump(all_data, tf)
-    #     return True
-    #
-    # def on_error(self, status):
-    #     print(status)
 
 
 if __name__ == '__main__':
